@@ -1,36 +1,38 @@
 <?php
 echo "<h2>Testing MySQL Connection...</h2>";
 
-$host = getenv('DB_HOST');
-$user = getenv('DB_USER');
-$pass = getenv('DB_PASS');
-$db   = getenv('DB_NAME');
-$port = 3306;
-
-// SSL certificate required by Azure
-$ssl_ca = __DIR__ . "/DigiCertGlobalRootCA.crt.pem";
+$host = getenv("DB_HOST");
+$user = getenv("DB_USER");
+$pass = getenv("DB_PASS");
+$db   = getenv("DB_NAME");
+$ssl  = "/site/wwwroot/certs/DigiCertGlobalRootG2.crt.pem"; // SSL certificate you uploaded
 
 echo "Host: $host<br>";
 echo "User: $user<br>";
 echo "Database: $db<br><br>";
 
-$conn = mysqli_init();
+$mysqli = mysqli_init();
 
-mysqli_ssl_set($conn, NULL, NULL, $ssl_ca, NULL, NULL);
+// Enable SSL
+mysqli_ssl_set($mysqli, NULL, NULL, $ssl, NULL, NULL);
 
-if (!mysqli_real_connect(
-        $conn,
-        $host,
-        $user,
-        $pass,
-        $db,
-        $port,
-        NULL,
-        MYSQLI_CLIENT_SSL
-    )) {
-
-    die("<strong>Connection failed:</strong> " . mysqli_connect_error());
+// Try connection
+if (!mysqli_real_connect($mysqli, $host, $user, $pass, $db, 3306, NULL, MYSQLI_CLIENT_SSL)) {
+    echo "<b>Connection failed:</b> " . mysqli_connect_error();
+    exit;
 }
 
-echo "<strong>SUCCESS! Connected to Azure MySQL.</strong>";
+echo "<b style='color:green;'>Connection successful!</b><br><br>";
+
+// Show tables
+$result = $mysqli->query("SHOW TABLES");
+
+echo "<h3>Tables in database:</h3>";
+echo "<pre>";
+while ($row = $result->fetch_array()) {
+    print_r($row);
+}
+echo "</pre>";
+
+$mysqli->close();
 ?>
