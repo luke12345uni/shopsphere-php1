@@ -1,30 +1,38 @@
 <?php
-// =============================
-// ShopSphere Global Configuration
-// =============================
 
-// Database connection settings (from App Service settings)
-define('DB_DRIVER', getenv('DB_DRIVER') ?: 'mysql');
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME', getenv('DB_NAME') ?: 'shopsphere_db');
-define('DB_USER', getenv('DB_USER') ?: 'Cmet1999');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+session_start();
 
-// =============================
-// SSL Certificate Path for Azure MySQL
-// =============================
+// Load env vars
+$DB_HOST = getenv("DB_HOST");
+$DB_USER = getenv("DB_USER");
+$DB_PASS = getenv("DB_PASS");
+$DB_NAME = getenv("DB_NAME");
+$DB_SSL  = "/site/wwwroot/certs/DigiCertGlobalRootG2.crt.pem"; // your actual cert name
 
-// IMPORTANT: This file must exist in /site/wwwroot/certs/ after deployment
-define('DB_SSL_CA', __DIR__ . '/certs/DigiCertGlobalRootG2.crt.pem');
+// Azure-required MySQL SSL connection
+function getDBConnection() {
+    global $DB_HOST, $DB_USER, $DB_PASS, $DB_NAME, $DB_SSL;
 
-// =============================
-// Azure Payment Function
-// =============================
-define('PAYMENT_FUNCTION_URL', getenv('PAYMENT_FUNCTION_URL') ?: 
-    'https://your-function-url.azurewebsites.net/api/payment_authorize');
+    $con = mysqli_init();
 
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    // REQUIRED FOR AZURE MySQL FLEXIBLE SERVER
+    mysqli_ssl_set($con, NULL, NULL, $DB_SSL, NULL, NULL);
+
+    mysqli_real_connect(
+        $con,
+        $DB_HOST,
+        $DB_USER,
+        $DB_PASS,
+        $DB_NAME,
+        3306,
+        NULL,
+        MYSQLI_CLIENT_SSL
+    );
+
+    if (mysqli_connect_errno()) {
+        die("MySQL Connection failed: " . mysqli_connect_error());
+    }
+
+    return $con;
 }
 ?>
