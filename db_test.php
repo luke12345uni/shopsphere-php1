@@ -1,17 +1,25 @@
 <?php
-require_once "config.php";
+require_once __DIR__ . '/db.php';
 
-echo "<h2>Testing MySQL Connection...</h2>";
+echo "<h1>Testing Azure MySQL Connection...</h1>";
 
-$con = db_connect();
+try {
+    $db = get_db_connection();
+    echo "<p style='color:green;'>✔ Connected successfully!</p>";
 
-echo "<p>Connected successfully!</p>";
+    // Test: list tables
+    $tables = $db->query("SHOW TABLES")->fetchAll();
+    echo "<h2>Tables:</h2><pre>";
+    print_r($tables);
+    echo "</pre>";
 
-$res = $con->query("SELECT * FROM products");
+    // Test: query products table
+    echo "<h2>Products:</h2><pre>";
+    $products = $db->query("SELECT id, name, price FROM products")->fetchAll();
+    print_r($products);
+    echo "</pre>";
 
-echo "<h3>Products:</h3>";
-
-while ($row = $res->fetch_assoc()) {
-    echo $row['name'] . " - £" . $row['price'] . "<br>";
+} catch (Exception $e) {
+    echo "<p style='color:red;'>❌ Error: " . $e->getMessage() . "</p>";
 }
 ?>
