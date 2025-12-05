@@ -1,38 +1,19 @@
 <?php
-echo "<h2>Testing MySQL Connection...</h2>";
+require_once("config.php");
 
-$host = getenv("DB_HOST");
-$user = getenv("DB_USER");
-$pass = getenv("DB_PASS");
-$db   = getenv("DB_NAME");
-$ssl  = "/site/wwwroot/certs/DigiCertGlobalRootG2.crt.pem"; // SSL certificate you uploaded
+echo "<h2>Testing Azure MySQL Connection...</h2>";
 
-echo "Host: $host<br>";
-echo "User: $user<br>";
-echo "Database: $db<br><br>";
+$con = getDBConnection();
 
-$mysqli = mysqli_init();
+if ($con) {
+    echo "<p style='color:green;'>✔ Connected successfully!</p>";
 
-// Enable SSL
-mysqli_ssl_set($mysqli, NULL, NULL, $ssl, NULL, NULL);
-
-// Try connection
-if (!mysqli_real_connect($mysqli, $host, $user, $pass, $db, 3306, NULL, MYSQLI_CLIENT_SSL)) {
-    echo "<b>Connection failed:</b> " . mysqli_connect_error();
-    exit;
+    $result = mysqli_query($con, "SHOW TABLES;");
+    if ($result) {
+        echo "<h3>Tables:</h3>";
+        while ($row = mysqli_fetch_array($result)) {
+            echo $row[0] . "<br>";
+        }
+    }
 }
-
-echo "<b style='color:green;'>Connection successful!</b><br><br>";
-
-// Show tables
-$result = $mysqli->query("SHOW TABLES");
-
-echo "<h3>Tables in database:</h3>";
-echo "<pre>";
-while ($row = $result->fetch_array()) {
-    print_r($row);
-}
-echo "</pre>";
-
-$mysqli->close();
 ?>
