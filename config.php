@@ -1,46 +1,19 @@
 <?php
-// ShopSphere PHP Configuration
+// ShopSphere Global Configuration
 
-// Database settings (from Azure App Settings)
-define('DB_HOST', getenv('DB_HOST') ?: 'lukedb.mysql.database.azure.com');
-define('DB_NAME', getenv('DB_NAME') ?: 'shopsphere_db');
+// Database credentials from Azure App Service Settings
+define('DB_DRIVER', 'mysql');
+define('DB_HOST', getenv('DB_HOST'));       // lukedb.mysql.database.azure.com
+define('DB_NAME', getenv('DB_NAME'));       // shopsphere_db
+define('DB_USER', getenv('DB_USER'));       // Cmet1999
+define('DB_PASS', getenv('DB_PASS'));       // your password
 
-// IMPORTANT: Correct username format for Azure Flexible Server
-define('DB_USER', getenv('DB_USER') ?: 'Cmet1999');
+// SSL Certificate Path (must exist in your deployed Web App)
+define('DB_SSL_CERT', __DIR__ . '/certs/DigiCertGlobalRootG2.crt.pem');
 
-// Password from App Settings
-define('DB_PASS', getenv('DB_PASS') ?: 'YOURPASSWORD');
+// Azure Function URL (optional for now)
+define('PAYMENT_FUNCTION_URL', getenv('PAYMENT_FUNCTION_URL'));
 
-// Path to SSL certificate (uploaded to /certs/)
-define('DB_SSL_CA', __DIR__ . '/certs/DigiCertGlobalRootG2.crt.pem');
-
-// Create a global mysqli connection function
-function db_connect() {
-    $con = mysqli_init();
-
-    // Enable SSL for Azure MySQL
-    mysqli_ssl_set($con, NULL, NULL, DB_SSL_CA, NULL, NULL);
-
-    // Connect
-    $success = mysqli_real_connect(
-        $con,
-        DB_HOST,
-        DB_USER,
-        DB_PASS,
-        DB_NAME,
-        3306,
-        NULL,
-        MYSQLI_CLIENT_SSL
-    );
-
-    if (!$success) {
-        die("MySQL Connection Failed: " . mysqli_connect_error());
-    }
-
-    return $con;
-}
-
-// Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
