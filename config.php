@@ -12,7 +12,7 @@ define('DB_PASS', getenv('DB_PASS'));       // your password
 define('DB_SSL_CERT', __DIR__ . '/certs/DigiCertGlobalRootG2.crt.pem');
 
 // Azure Function URL (optional for now)
-define('PAYMENT_FUNCTION_URL', getenv('PAYMENT_FUNCTION_URL'));
+define('PAYMENT_FUNCTION_URL', '/payment_authorize.php');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
